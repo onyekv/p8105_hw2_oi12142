@@ -1,0 +1,72 @@
+---
+title: "p8105_hw2_oi2142"
+output: github_document
+---
+
+
+
+## Problem 1:
+  -Reading and cleaning Mr. Trash Wheel data set using read_excel and janitor::clean_names()
+  
+  
+  -Omitting rows that d o not include dumpster specific data
+  
+  
+
+```{r setup}
+library(tidyverse)
+library (readxl)
+```
+
+
+```{r Reading Cleaning Dropping}
+trash_wheel = 
+  read_excel("./data/mr_trash_wheel.xlsx", sheet = "Mr. Trash Wheel", range = "a2:n408")
+
+trash_wheel = 
+    janitor::clean_names(trash_wheel)
+
+trash_wheel = drop_na(trash_wheel)
+
+
+```
+
+
+Rounding the number of sports balls to nearest integer
+
+
+
+```{r Rounding}
+trash_wheel$sports_balls <- round(trash_wheel$sports_balls)
+trash_wheel
+```
+
+
+- Reading & Cleaning Precipitation 2018
+
+```{r}
+precipation_2018 = 
+  read_excel("./data/mr_trash_wheel.xlsx", sheet = "2018 Precipitation", range = "a2:B14") 
+
+precipation_2018 = 
+  janitor::clean_names(precipation_2018)
+
+precipation_2018$year <- 2018
+  
+precipation_2018  
+```
+
+
+- Reading & Cleaning Precipitation 2019
+
+```{r}
+precipation_2019 = 
+  read_excel("./data/mr_trash_wheel.xlsx", sheet = "2019 Precipitation", range = "a2:b8") 
+
+precipation_2019 = 
+  janitor::clean_names(precipation_2019)
+
+ precipation_2019$year <- 2019
+  precipation_2019  
+```
+
