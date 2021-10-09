@@ -1,0 +1,151 @@
+---
+title: "Onyeka Isamah, oi2142, Homework 2"
+output: github_document
+---
+
+
+## Problem 1, Mr Trash Wheel Dataset:
+  
+  #Reading and cleaning Mr. Trash Wheel data set using read_excel and janitor::clean_names()
+  
+  #Omitting rows that do not include dumpster specific data
+  
+```{r setup}
+library(tidyverse)
+library (readxl)
+library(skimr)
+```
+
+
+```{r Reading Cleaning Dropping}
+trash_wheel = 
+  read_excel("./data/NEW_mr_trash_wheel", sheet = "Mr. Trash Wheel", range = "a2:n408")
+trash_wheel = 
+    janitor::clean_names(trash_wheel)
+trash_wheel = drop_na(trash_wheel)
+```
+  # Rounding the number of sports balls to nearest integer
+
+```{r Rounding}
+trash_wheel$sports_balls <- round(trash_wheel$sports_balls)
+trash_wheel
+```
+ # Reading & Cleaning Precipitation 2018
+
+```{r Cleaning precipitation data for 2018}
+precipitation_2018 = 
+  read_excel("./data/mr_trash_wheel.xlsx", sheet = "2018 Precipitation", range = "a2:B14")
+
+precipitation_2018 = 
+  janitor::clean_names(precipitation_2018)
+
+precipitation_2018$year <- 2018
+  
+precipitation_2018  
+```
+
+
+ #Reading & Cleaning Precipitation 2019
+
+```{r Cleaning precipitation data for 2019}
+precipitation_2019 = 
+  read_excel("./data/mr_trash_wheel.xlsx", sheet = "2019 Precipitation", range = "a2:b8") 
+
+precipitation_2019 = 
+  janitor::clean_names(precipitation_2019)
+
+precipitation_2019$year <- 2019
+  precipitation_2019  
+
+```
+
+ #Combining precipitation datasets 
+
+```{r Combining / Merging data sets}
+combined_precipitation <- bind_rows(precipitation_2018, precipitation_2019)
+                                   
+combined_precipitation<- mutate (combined_precipitation, MonthName = month.name[month])
+
+combined_precipitation
+```
+
+
+
+The Mr. Trashwheel dataset has `r nrow(trash_wheel)` observations and `r ncol(trash_wheel)` variables. The variables account for each `dumpster` number, `weight`, and `volume` as well as the `month`, `year`, and `date`. The dataset also includes variables of the type of trash: `plastic`, `polystyrene`, `cigarette_butts`, `glass_bottles`, `grocery_bags`, `chip_bags`, and  `sports_balls`. 
+
+
+
+The Precipiation data set has `r nrow(combined_precipitation)` observations for the amount of rainfall that occurred and `r ncol(combined_precipitation)` variables - which were `month`, `year`, and the `total` amount of rainfall.
+
+
+
+Find sum and median**
+
+### Problem 2 - FiveThirtyEight Dataset
+
+ ###Clean the data in pols-month.csv. 
+
+```{r Cleaning pols_df}
+pols_df = 
+  read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv") %>% 
+  
+  separate(mon, c("year", "month", "day")) %>% 
+  
+  mutate(
+    month = month.name[as.numeric(month)],
+
+    president = recode(prez_dem, "0" = "gop", "1"="dem"))   
+  
+    pols_df = select(pols_df, -prez_dem, -prez_gop, -day)
+```
+ ### Cleaning the snp_csv file
+
+```{r cleaning snp_df}
+snp_df = 
+  read_csv(file = "./data/fivethirtyeight_datasets/snp.csv")
+
+  janitor::clean_names(snp_df)  
+
+snp_df=  separate(snp_df, "date", into =  c("month", "day", "year"), convert = TRUE) %>% 
+  mutate( 
+    year, year = if_else( year<= 15, year + 2000, year + 1900)) %>% 
+      arrange(year, month, .by_group = TRUE) %>% 
+ mutate(
+    year = as.character(year),  
+      month = month.name[as.numeric(month)], 
+      month = str_to_lower(month))
+
+```
+
+ ### Tidying unemployment data, before merging
+```{r Tidying unemployment_df}
+unemployment_df = 
+  read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>% 
+
+  janitor::clean_names() %>% 
+  
+  pivot_longer(jan:dec,
+    names_to = "month", 
+    values_to = "unemployment") %>% 
+
+  mutate(
+  
+  month = recode(month, 
+    jan = "january", feb = "february", mar = "march", apr = "april", may = "may", jun = "june", jul = "july", aug =  "august", sep = "september", nov = "november", dec = "december"),
+  
+    year = as.character(year)
+)
+```
+
+### Merging 
+##Merging pols_df and snp_df (left join), then merging the result to the unemployment_df
+```{r}
+snp_pol_combo = left_join(pols_df,snp_df)
+
+five_thirty_eight_joined = left_join(snp_pol_combo, unemployment_df) 
+```
+
+
+### Describing the data
+
+
