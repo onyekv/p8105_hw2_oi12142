@@ -4,11 +4,11 @@ output: github_document
 ---
 
 
-## Problem 1, Mr Trash Wheel Dataset:
+### Problem 1, Mr Trash Wheel Dataset:
   
-  #Reading and cleaning Mr. Trash Wheel data set using read_excel and janitor::clean_names()
+##### Reading and cleaning Mr. Trash Wheel data set using read_excel and janitor::clean_names()
   
-  #Omitting rows that do not include dumpster specific data
+##### Omitting rows that do not include dumpster specific data
   
 ```{r setup}
 library(tidyverse)
@@ -24,13 +24,13 @@ trash_wheel =
     janitor::clean_names(trash_wheel)
 trash_wheel = drop_na(trash_wheel)
 ```
-  # Rounding the number of sports balls to nearest integer
+##### Rounding the number of sports balls to nearest integer
 
 ```{r Rounding}
 trash_wheel$sports_balls <- round(trash_wheel$sports_balls)
 trash_wheel
 ```
- # Reading & Cleaning Precipitation 2018
+##### Reading & Cleaning Precipitation 2018
 
 ```{r Cleaning precipitation data for 2018}
 precipitation_2018 = 
@@ -45,7 +45,7 @@ precipitation_2018
 ```
 
 
- #Reading & Cleaning Precipitation 2019
+##### Reading & Cleaning Precipitation 2019
 
 ```{r Cleaning precipitation data for 2019}
 precipitation_2019 = 
@@ -56,10 +56,11 @@ precipitation_2019 =
 
 precipitation_2019$year <- 2019
   precipitation_2019  
+  
 
 ```
 
- #Combining precipitation datasets 
+##### Combining precipitation datasets 
 
 ```{r Combining / Merging data sets}
 combined_precipitation <- bind_rows(precipitation_2018, precipitation_2019)
@@ -67,23 +68,23 @@ combined_precipitation <- bind_rows(precipitation_2018, precipitation_2019)
 combined_precipitation<- mutate (combined_precipitation, MonthName = month.name[month])
 
 combined_precipitation
+
+
 ```
 
 
 
-The Mr. Trashwheel dataset has `r nrow(trash_wheel)` observations and `r ncol(trash_wheel)` variables. The variables account for each `dumpster` number, `weight`, and `volume` as well as the `month`, `year`, and `date`. The dataset also includes variables of the type of trash: `plastic`, `polystyrene`, `cigarette_butts`, `glass_bottles`, `grocery_bags`, `chip_bags`, and  `sports_balls`. 
+The Mr. Trashwheel dataset has `r nrow(trash_wheel)` observations and `r ncol(trash_wheel)` variables. The variables account for each `dumpster` number, `weight`, and `volume` as well as the `month`, `year`, and `date`. The dataset also includes variables of the type of trash: `plastic`, `polystyrene`, `cigarette_butts`, `glass_bottles`, `grocery_bags`, `chip_bags`, and  `sports_balls`. The median number of `sports_balls` in `year` 2019 is `r median(trash_wheel$sports_balls, year = 2017)`
 
 
 
-The Precipiation data set has `r nrow(combined_precipitation)` observations for the amount of rainfall that occurred and `r ncol(combined_precipitation)` variables - which were `month`, `year`, and the `total` amount of rainfall.
+The Precipitation data set has `r nrow(combined_precipitation)` observations for the amount of rainfall that occurred and `r ncol(combined_precipitation)` variables - which were `month`, `year`, and the `total` amount of rainfall. The total amount of precipitation in 2018 is `r sum(precipitation_2018$total)`.
 
 
-
-Find sum and median**
 
 ### Problem 2 - FiveThirtyEight Dataset
 
- ###Clean the data in pols-month.csv. 
+##### Clean the data in pols-month.csv. 
 
 ```{r Cleaning pols_df}
 pols_df = 
@@ -97,8 +98,9 @@ pols_df =
     president = recode(prez_dem, "0" = "gop", "1"="dem"))   
   
     pols_df = select(pols_df, -prez_dem, -prez_gop, -day)
+    pols_df
 ```
- ### Cleaning the snp_csv file
+##### Cleaning the snp_csv file
 
 ```{r cleaning snp_df}
 snp_df = 
@@ -114,10 +116,10 @@ snp_df=  separate(snp_df, "date", into =  c("month", "day", "year"), convert = T
     year = as.character(year),  
       month = month.name[as.numeric(month)], 
       month = str_to_lower(month))
-
+snp_df
 ```
 
- ### Tidying unemployment data, before merging
+##### Tidying unemployment data, before merging
 ```{r Tidying unemployment_df}
 unemployment_df = 
   read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>% 
@@ -135,17 +137,91 @@ unemployment_df =
   
     year = as.character(year)
 )
+unemployment_df
 ```
 
-### Merging 
-##Merging pols_df and snp_df (left join), then merging the result to the unemployment_df
+##### Merging 
+###### Merging pols_df and snp_df (left join), then merging the result to the unemployment_df
 ```{r}
 snp_pol_combo = left_join(pols_df,snp_df)
 
 five_thirty_eight_joined = left_join(snp_pol_combo, unemployment_df) 
+five_thirty_eight_joined
 ```
 
 
-### Describing the data
+##### Describing the data
 
 
+The Pols_df data set has `r nrow(pols_df)` observations  and `r ncol(pols_df)` variables related to politicians who were democratic or republican between the years 1947 and 2015.
+
+The snp_df data set has  `r nrow(snp_df)` observations  and `r ncol(snp_df)` variables related to Standard & Poor’s stock market index (S&P) from 1950 - 2015. The variables were `month`, `year`, and `close`. 
+
+The unemployment_df data set has  `r nrow(unemployment_df)` observations  and `r ncol(unemployment_df)` variables related to the percentage of unemployment by `month` (January- February) from the years 1948-2015.
+
+The resulting data set that joined pols,snp, and unemployment (five_thirty_eight_joined) has `r nrow(five_thirty_eight_joined)` observations  and `r ncol(five_thirty_eight_joined)` variables. 
+
+ 
+ 
+##### Problem3 NYC Open Data
+
+ Cleaning the data set
+```{r cleaning babynames data set}
+babyname_df = distinct(
+  read_csv("./data/Popular_baby_names.csv") %>% 
+  janitor::clean_names() %>% 
+  
+  mutate(ethnicity = recode(ethnicity,
+   "WHITE NON HISP" = "WHITE NON HISPANIC", 
+   "WHITE NON HISPANIC"="WHITE NON HISPANIC",  
+   "BLACK NON HISP" =  "BLACK NON HISPANIC",  
+   "BLACK NON HISPANIC" = "BLACK NON HISPANIC",
+ "ASIAN AND PACI" ="ASIAN AND PACIFIC ISLANDER",  
+  "ASIAN AND PACIFIC ISLANDER"= "ASIAN AND PACIFIC ISLANDER"
+)) %>% 
+  
+mutate(
+  year_of_birth = as.character(year_of_birth)))
+```
+
+##### Popularity of the name *Olivia* as a female baby name over the years
+
+```{r Olivia Ranking}
+ olivia_rank=(select(babyname_df, childs_first_name, year_of_birth, gender, rank, ethnicity, -count) %>% 
+                     
+    filter(childs_first_name == "OLIVIA", 
+    gender == "FEMALE") %>% 
+  
+      pivot_wider(
+        names_from = "year_of_birth",
+        values_from = "rank") %>% 
+        group_by(ethnicity))
+olivia_rank
+```
+
+##### Most popular baby names for male children over time
+
+```{r Male Ranking}
+ male_rank= pivot_wider(
+   
+  (select(babyname_df, -count) %>% 
+  filter(gender == "MALE") %>% 
+  pivot_wider(
+  names_from = "year_of_birth", 
+  values_from = "rank") %>% 
+  group_by(ethnicity)))
+```
+
+
+###### Scatter Plot
+Creating data frame to be plotted, for white non hispanic males who were born in 2016
+```{r}
+whitemale_plot = filter(babyname_df, gender == "MALE", ethnicity == "WHITE NON HISPANIC", year_of_birth == 2016)
+```
+
+Scatterplot for white non hispanic males who were born in 2016
+
+```{r scatter plot}
+ggplot(whitemale_plot, aes(x = rank, y = count)) + 
+  geom_point()
+```
